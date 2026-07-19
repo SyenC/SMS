@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Bestlink OMS</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.7/sweetalert2.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.11/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="crest-mark">BC</div>
+      <div class="brand-text">
+        <strong>Bestlink OMS</strong>
+        <span>Co-Curricular Affairs</span>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-section-title">Overview</div>
+      <a href="dashboard.html" class="nav-link active"><i class="fa-solid fa-gauge"></i><span class="nav-label">Dashboard</span></a>
+      <a href="organizations.html" class="nav-link"><i class="fa-solid fa-sitemap"></i><span class="nav-label">Organizations</span></a>
+
+      <div class="nav-section-title">Membership</div>
+      <a href="members.html" class="nav-link"><i class="fa-solid fa-users"></i><span class="nav-label">Members</span><span class="nav-badge">12</span></a>
+      <a href="officers.html" class="nav-link"><i class="fa-solid fa-id-badge"></i><span class="nav-label">Officers</span></a>
+      <a href="election.html" class="nav-link"><i class="fa-solid fa-check-to-slot"></i><span class="nav-label">Elections</span></a>
+
+      <div class="nav-section-title">Operations</div>
+      <a href="activities.html" class="nav-link"><i class="fa-solid fa-calendar-days"></i><span class="nav-label">Activities</span></a>
+      <a href="attendance.html" class="nav-link"><i class="fa-solid fa-qrcode"></i><span class="nav-label">Attendance</span></a>
+      <a href="documents.html" class="nav-link"><i class="fa-solid fa-folder-open"></i><span class="nav-label">Documents</span></a>
+      <a href="budget.html" class="nav-link"><i class="fa-solid fa-sack-dollar"></i><span class="nav-label">Budget</span><span class="nav-badge">5</span></a>
+      <a href="inventory.html" class="nav-link"><i class="fa-solid fa-boxes-stacked"></i><span class="nav-label">Inventory</span></a>
+
+      <div class="nav-section-title">Engagement</div>
+      <a href="announcements.html" class="nav-link"><i class="fa-solid fa-bullhorn"></i><span class="nav-label">Announcements</span></a>
+      <a href="reports.html" class="nav-link"><i class="fa-solid fa-chart-column"></i><span class="nav-label">Reports</span></a>
+      <a href="settings.html" class="nav-link"><i class="fa-solid fa-gear"></i><span class="nav-label">Settings</span></a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <a href="#" data-logout class="d-flex align-items-center gap-2" style="color:rgba(255,255,255,0.55);">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i><span class="nav-label">Sign out</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN COLUMN ============ -->
+  <div class="main-col">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+
+      <div class="topbar-search d-none d-md-block">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search organizations, members, activities…">
+      </div>
+
+      <div class="topbar-actions">
+        <div class="form-check form-switch d-none d-sm-flex align-items-center me-1" style="gap:6px;">
+          <input class="form-check-input" type="checkbox" id="darkModeToggle" role="switch">
+          <label class="form-check-label" for="darkModeToggle" style="font-size:0.75rem; color:var(--gray-500);"><i class="fa-solid fa-moon"></i></label>
+        </div>
+
+        <button class="icon-btn" id="notifBell"><i class="fa-regular fa-bell"></i><span class="ping"></span></button>
+
+        <div class="dropdown">
+          <button class="avatar-chip dropdown-toggle" data-bs-toggle="dropdown">
+            <span class="av" data-user-initials>OA</span>
+            <span class="meta d-none d-sm-block">
+              <strong data-user-name>OSA Administrator</strong>
+              <span data-user-role>OSA / Admin</span>
+            </span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#"><i class="fa-regular fa-user me-2"></i>My profile</a></li>
+            <li><a class="dropdown-item" href="settings.html"><i class="fa-solid fa-gear me-2"></i>Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" data-logout><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Sign out</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- Org category pulse strip -->
+    <div class="pulse-strip">
+      <span><span class="dot" style="background:#071C36"></span>LOC — 1 council</span>
+      <span><span class="dot" style="background:#0B5ED7"></span>Academic — 23 orgs</span>
+      <span><span class="dot" style="background:#FFC107"></span>Non-Academic — 14 orgs</span>
+      <span><span class="dot" style="background:#14919B"></span>Independent — 3 orgs</span>
+      <span class="ms-auto d-none d-lg-inline">A.Y. 2025–2026 · 2nd Semester</span>
+    </div>
+
+    <!-- Content -->
+    <main class="content">
+
+      <div class="page-heading mb-4">
+        <h4 data-greeting>Good morning, OSA Administrator</h4>
+        <p>Here's what's happening across all recognized organizations today.</p>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="icon-chip" style="background:var(--blue-50); color:var(--blue-600);"><i class="fa-solid fa-sitemap"></i></div>
+            <div class="stat-value">41</div>
+            <div class="stat-label">Total Organizations</div>
+            <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 2 new this year</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="icon-chip" style="background:rgba(11,94,215,0.1); color:#0B5ED7;"><i class="fa-solid fa-book"></i></div>
+            <div class="stat-value">23</div>
+            <div class="stat-label">Academic Organizations</div>
+            <div class="stat-delta flat"><i class="fa-solid fa-minus"></i> No change</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="icon-chip" style="background:rgba(255,193,7,0.16); color:#E6AC00;"><i class="fa-solid fa-palette"></i></div>
+            <div class="stat-value">14</div>
+            <div class="stat-label">Non-Academic Organizations</div>
+            <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 1 new this year</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="icon-chip" style="background:rgba(20,145,155,0.12); color:#14919B;"><i class="fa-solid fa-hands-holding-circle"></i></div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">Independent Organizations</div>
+            <div class="stat-delta flat"><i class="fa-solid fa-minus"></i> No change</div>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="icon-chip" style="background:rgba(30,158,107,0.12); color:var(--success);"><i class="fa-solid fa-user-check"></i></div>
+            <div class="stat-value">1,842</div>
+            <div class="stat-label">Active Members</div>
+            <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 6.4% vs last sem</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="icon-chip" style="background:var(--blue-50); color:var(--blue-600);"><i class="fa-solid fa-id-badge"></i></div>
+            <div class="stat-value">246</div>
+            <div class="stat-label">Organization Officers</div>
+            <div class="stat-delta flat"><i class="fa-solid fa-minus"></i> No change</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="icon-chip" style="background:rgba(255,193,7,0.16); color:#E6AC00;"><i class="fa-solid fa-calendar-days"></i></div>
+            <div class="stat-value">17</div>
+            <div class="stat-label">Upcoming Activities</div>
+            <div class="stat-delta up"><i class="fa-solid fa-arrow-up"></i> 4 this week</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="icon-chip" style="background:rgba(224,69,75,0.1); color:var(--danger);"><i class="fa-solid fa-clipboard-list"></i></div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Pending Membership Applications</div>
+            <div class="stat-delta down"><i class="fa-solid fa-arrow-down"></i> Needs review</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="stat-card d-flex align-items-center justify-content-between flex-row">
+            <div>
+              <div class="stat-value" style="font-size:1.4rem;">5</div>
+              <div class="stat-label">Pending Budget Requests</div>
+            </div>
+            <div class="icon-chip mb-0" style="background:rgba(224,69,75,0.1); color:var(--danger);"><i class="fa-solid fa-sack-dollar"></i></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card d-flex align-items-center justify-content-between flex-row">
+            <div>
+              <div class="stat-value" style="font-size:1.4rem;">₱296K</div>
+              <div class="stat-label">Total Budget Allocated (A.Y.)</div>
+            </div>
+            <div class="icon-chip mb-0" style="background:var(--blue-50); color:var(--blue-600);"><i class="fa-solid fa-wallet"></i></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card d-flex align-items-center justify-content-between flex-row">
+            <div>
+              <div class="stat-value" style="font-size:1.4rem;">3</div>
+              <div class="stat-label">Elections In Progress</div>
+            </div>
+            <div class="icon-chip mb-0" style="background:rgba(20,145,155,0.12); color:#14919B;"><i class="fa-solid fa-check-to-slot"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h6>Membership per Organization</h6>
+                <div class="panel-sub">Top 8 organizations by active member count</div>
+              </div>
+            </div>
+            <canvas id="membershipChart" height="140"></canvas>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h6>Budget Allocation</h6>
+                <div class="panel-sub">By organization category, this A.Y.</div>
+              </div>
+            </div>
+            <canvas id="budgetChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h6>Activities per Month</h6>
+                <div class="panel-sub">College-wide, last 6 months</div>
+              </div>
+            </div>
+            <canvas id="activitiesChart" height="140"></canvas>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h6>Organization Performance</h6>
+                <div class="panel-sub">Sample comparison, ACES vs CDC</div>
+              </div>
+            </div>
+            <canvas id="performanceChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table + announcements -->
+      <div class="row g-3">
+        <div class="col-lg-7">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h6>Recent Activities</h6>
+                <div class="panel-sub">Latest submissions across all organizations</div>
+              </div>
+              <a href="activities.html" class="small" style="color:var(--blue-600); font-weight:600;">View all</a>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle" id="recentActivitiesTable">
+                <thead>
+                  <tr><th>Activity</th><th>Organization</th><th>Date</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>General Assembly</td><td>SIGMA</td><td>Jul 22, 2026</td><td><span class="status-pill approved">Approved</span></td></tr>
+                  <tr><td>Blood Letting Drive</td><td>RCYC-BCP</td><td>Jul 24, 2026</td><td><span class="status-pill pending">Pending</span></td></tr>
+                  <tr><td>Career Talk</td><td>ACES</td><td>Jul 25, 2026</td><td><span class="status-pill approved">Approved</span></td></tr>
+                  <tr><td>Art Exhibit</td><td>Image Alchemy</td><td>Jul 28, 2026</td><td><span class="status-pill pending">Pending</span></td></tr>
+                  <tr><td>Coastal Cleanup</td><td>EYO</td><td>Jul 30, 2026</td><td><span class="status-pill approved">Approved</span></td></tr>
+                  <tr><td>Chess Invitational</td><td>EBCP Chess Team</td><td>Aug 2, 2026</td><td><span class="status-pill rejected">Rejected</span></td></tr>
+                  <tr><td>Officer Onboarding</td><td>LOC</td><td>Aug 4, 2026</td><td><span class="status-pill approved">Approved</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h6>Recent Announcements</h6>
+                <div class="panel-sub">Posted by officers and OSA</div>
+              </div>
+              <a href="announcements.html" class="small" style="color:var(--blue-600); font-weight:600;">View all</a>
+            </div>
+
+            <div class="announce-item">
+              <div class="tag" style="background:#0B5ED7;"></div>
+              <div>
+                <h6>LOC Officer Elections — Filing of Candidacy</h6>
+                <p>Filing opens Aug 4 for all academic and non-academic organization seats.</p>
+                <small>Posted by OSA · 2 hours ago</small>
+              </div>
+            </div>
+            <div class="announce-item">
+              <div class="tag" style="background:#FFC107;"></div>
+              <div>
+                <h6>CDC Recruitment Week</h6>
+                <p>Creative Dance Company is accepting new members until July 31.</p>
+                <small>Posted by CDC · Yesterday</small>
+              </div>
+            </div>
+            <div class="announce-item">
+              <div class="tag" style="background:#14919B;"></div>
+              <div>
+                <h6>Peer Counselor Training Schedule Released</h6>
+                <p>Batch 3 training sessions will run every Friday afternoon this semester.</p>
+                <small>Posted by Peer Counselor · 2 days ago</small>
+              </div>
+            </div>
+            <div class="announce-item">
+              <div class="tag" style="background:#071C36;"></div>
+              <div>
+                <h6>Budget Liquidation Deadline Reminder</h6>
+                <p>All organizations must submit liquidation reports by Aug 10.</p>
+                <small>Posted by OSA · 3 days ago</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.7/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/4.4.3/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.11/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.13.11/js/dataTables.bootstrap5.min.js"></script>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>
