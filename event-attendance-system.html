@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventTrack — Attendance System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#152238;
+    --navy-2:#1E3357;
+    --gold:#D8A94A;
+    --gold-2:#F0C36D;
+    --bg:#F3F5F9;
+    --panel:#FFFFFF;
+    --ink:#1B2436;
+    --sub:#6B7488;
+    --line:#E4E8F0;
+    --ok:#2C9A6B;
+    --ok-bg:#E7F6EF;
+    --danger:#D14343;
+    --danger-bg:#FBEAEA;
+    --pending:#B8862F;
+    --pending-bg:#FBF2E1;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .topbar{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);
+    color:#fff;
+    padding:22px 20px 60px;
+    position:relative;
+    overflow:hidden;
+  }
+  .topbar::after{
+    content:"";
+    position:absolute;
+    top:-40px;right:-40px;
+    width:180px;height:180px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(216,169,74,0.25),transparent 70%);
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Sora',sans-serif;font-weight:800;font-size:20px;letter-spacing:0.2px;
+  }
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);}
+  .tagline{color:#B7C2DA;font-size:13px;margin-top:4px;}
+
+  .tabs{
+    display:flex;gap:8px;
+    margin:-38px 16px 0;
+    position:relative;
+    z-index:2;
+  }
+  .tab{
+    flex:1;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,0.18);
+    color:#EDEFF5;
+    padding:12px 10px;
+    border-radius:12px 12px 0 0;
+    font-family:'Sora',sans-serif;font-weight:600;font-size:13.5px;
+    text-align:center;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .tab.active{
+    background:var(--panel);
+    color:var(--navy);
+    border-bottom:none;
+  }
+
+  .content{
+    max-width:720px;margin:0 auto;
+    padding:18px 16px 60px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:16px;
+    box-shadow:0 1px 3px rgba(20,30,60,0.04);
+  }
+  .card h2{
+    font-family:'Sora',sans-serif;font-size:16px;margin:0 0 4px;
+  }
+  .card .desc{color:var(--sub);font-size:13px;margin:0 0 14px;}
+
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--sub);margin:12px 0 5px;}
+  label:first-of-type{margin-top:0;}
+  input[type=text], input[type=date], select{
+    width:100%;
+    padding:10px 12px;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    font-size:14px;
+    font-family:'Inter',sans-serif;
+    background:#FBFCFE;
+    color:var(--ink);
+  }
+  input:focus, select:focus{outline:none;border-color:var(--navy-2);}
+  .hint{font-size:11.5px;color:var(--sub);margin-top:4px;}
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    padding:11px 16px;
+    border-radius:10px;
+    border:none;
+    font-family:'Sora',sans-serif;font-weight:600;font-size:13.5px;
+    cursor:pointer;
+    width:100%;
+    margin-top:10px;
+    transition:transform .1s;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--navy);color:#fff;}
+  .btn-gold{background:var(--gold);color:var(--navy);}
+  .btn-outline{background:#fff;border:1.5px solid var(--line);color:var(--ink);}
+  .btn-danger{background:var(--danger-bg);color:var(--danger);}
+  .btn-row{display:flex;gap:8px;}
+  .btn-row .btn{margin-top:0;}
+
+  .event-item{
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:10px;
+  }
+  .event-item .row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .event-item h3{margin:0;font-family:'Sora',sans-serif;font-size:14.5px;}
+  .event-item .meta{color:var(--sub);font-size:12px;margin-top:3px;}
+  .badge{
+    font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;
+    white-space:nowrap;
+  }
+  .badge.pending{background:var(--pending-bg);color:var(--pending);}
+  .badge.approved{background:var(--ok-bg);color:var(--ok);}
+  .sections-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+  .sec-tag{
+    background:#EFF2F8;color:var(--navy-2);
+    font-size:11px;font-weight:600;
+    padding:3px 8px;border-radius:6px;
+  }
+
+  .qr-wrap{
+    display:flex;flex-direction:column;align-items:center;
+    background:#FBFCFE;border:1.5px dashed var(--line);
+    border-radius:12px;padding:16px;margin-top:10px;
+  }
+  .qr-wrap .qrcode-box{background:#fff;padding:10px;border-radius:10px;}
+  .qr-token{
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sub);
+    margin-top:8px;letter-spacing:0.5px;
+  }
+
+  .empty{
+    text-align:center;color:var(--sub);font-size:13px;padding:24px 10px;
+  }
+
+  .scan-result{
+    border-radius:12px;padding:14px;margin-top:14px;font-size:13.5px;
+    display:flex;gap:10px;align-items:flex-start;
+  }
+  .scan-result.ok{background:var(--ok-bg);color:#1D6B49;}
+  .scan-result.err{background:var(--danger-bg);color:#A32E2E;}
+  .scan-result .icon{font-size:18px;line-height:1;}
+
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px;}
+  th{
+    text-align:left;color:var(--sub);font-weight:600;font-size:11px;
+    text-transform:uppercase;letter-spacing:0.3px;
+    padding:6px 6px;border-bottom:1.5px solid var(--line);
+  }
+  td{padding:8px 6px;border-bottom:1px solid var(--line);}
+  .status-pill{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:99px;}
+  .status-in{background:#E4EDFB;color:#2A5BB0;}
+  .status-complete{background:var(--ok-bg);color:var(--ok);}
+
+  .filter-row{display:flex;gap:8px;margin-top:10px;}
+  .filter-row select{flex:1;}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .stat{
+    background:#FBFCFE;border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;
+  }
+  .stat .num{font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:var(--navy);}
+  .stat .lbl{font-size:11px;color:var(--sub);margin-top:2px;}
+
+  .note{
+    font-size:12px;color:var(--sub);background:#FBFCFE;border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;margin-top:6px;
+  }
+
+  /* --- camera scanner --- */
+  .scanner-box{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    background:#0D1526;
+    border-radius:14px;
+    overflow:hidden;
+    display:none;
+  }
+  .scanner-box.active{display:block;}
+  .scanner-box video{
+    width:100%;height:100%;object-fit:cover;
+  }
+  .scan-frame{
+    position:absolute;inset:14%;
+    border:2.5px solid var(--gold);
+    border-radius:16px;
+    box-shadow:0 0 0 999px rgba(0,0,0,0.35);
+  }
+  .scan-line{
+    position:absolute;left:14%;right:14%;top:14%;
+    height:2px;background:linear-gradient(90deg,transparent,var(--gold-2),transparent);
+    animation:scan-move 1.8s ease-in-out infinite;
+  }
+  @keyframes scan-move{
+    0%{top:14%;} 50%{top:84%;} 100%{top:14%;}
+  }
+  .scanner-status{
+    position:absolute;bottom:10px;left:0;right:0;
+    text-align:center;color:#fff;font-size:12px;font-weight:600;
+    text-shadow:0 1px 3px rgba(0,0,0,0.6);
+  }
+
+  .matched-card{
+    display:none;
+    background:var(--ok-bg);border:1.5px solid #BFE6D3;
+    border-radius:12px;padding:12px 14px;margin-top:10px;
+    font-size:13px;color:#1D6B49;
+  }
+  .matched-card.show{display:block;}
+  .matched-card b{display:block;font-family:'Sora',sans-serif;font-size:14px;margin-bottom:2px;}
+
+  details.fallback{margin-top:14px;}
+  details.fallback summary{
+    cursor:pointer;font-size:12.5px;color:var(--sub);font-weight:600;
+  }
+
+  /* --- print --- */
+  .print-area{display:none;}
+  @media print{
+    body > *:not(.print-area){display:none !important;}
+    .print-area{
+      display:flex !important;
+      flex-direction:column;align-items:center;
+      justify-content:center;
+      padding:60px 20px;
+      font-family:'Inter',sans-serif;
+    }
+    .print-area h1{font-family:'Sora',sans-serif;font-size:24px;margin:0 0 4px;text-align:center;}
+    .print-area .pmeta{color:#555;font-size:13px;margin-bottom:18px;text-align:center;}
+    .print-area .psections{font-size:13px;margin-top:18px;text-align:center;max-width:340px;}
+    .print-area .ptoken{font-family:'JetBrains Mono',monospace;font-size:11px;color:#888;margin-top:10px;}
+    .print-area .pinstruction{font-size:12px;color:#777;margin-top:22px;text-align:center;max-width:320px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span>EventTrack</div>
+  <div class="tagline">Event approval → QR code → automatic time in/out per department</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="admin" onclick="switchTab('admin')">🗂️ Admin</div>
+  <div class="tab" data-tab="scan" onclick="switchTab('scan')">📷 Student Scan</div>
+</div>
+
+<div class="content">
+
+  <!-- ADMIN TAB -->
+  <div id="tab-admin">
+
+    <div class="card">
+      <h2>Gumawa ng Bagong Event</h2>
+      <p class="desc">Ito ang lalabas na kailangang i-approve bago ka makagawa ng QR code.</p>
+
+      <label>Pangalan ng Event</label>
+      <input type="text" id="ev-name" placeholder="hal. General Assembly, Foundation Day">
+
+      <label>Petsa</label>
+      <input type="date" id="ev-date">
+
+      <label>Aling Department/Section ang dapat dumalo?</label>
+      <input type="text" id="ev-sections" placeholder="hal. BSIT-3A, BSIT-3B, BSCS-2A (comma-separated)">
+      <div class="hint">Ito ang gagamitin ng system para tama lang ang mag-a-attend dito.</div>
+
+      <button class="btn btn-primary" onclick="createEvent()">+ Isumite Event</button>
+    </div>
+
+    <div class="card">
+      <h2>Listahan ng Events</h2>
+      <p class="desc">I-approve para awtomatikong makabuo ng QR code na pwede mo nang i-print.</p>
+      <div id="event-list"></div>
+    </div>
+
+    <div class="card" id="attendance-card" style="display:none;">
+      <h2>Attendance Monitor</h2>
+
+      <div class="stat-grid" id="att-stats"></div>
+
+      <div class="filter-row">
+        <select id="filter-event"></select>
+        <select id="filter-section"></select>
+      </div>
+
+      <table id="att-table">
+        <thead><tr><th>Estudyante</th><th>Section</th><th>Time In</th><th>Time Out</th><th>Status</th></tr></thead>
+        <tbody id="att-tbody"></tbody>
+      </table>
+      <div class="empty" id="att-empty" style="display:none;">Wala pang naka-scan na attendance.</div>
+    </div>
+
+  </div>
+
+  <!-- SCAN TAB -->
+  <div id="tab-scan" style="display:none;">
+    <div class="card">
+      <h2>I-scan ang QR ng Event</h2>
+      <p class="desc">Buksan ang camera at i-frame ang QR code na na-print ng admin.</p>
+
+      <div class="btn-row">
+        <button class="btn btn-gold" id="btn-start-scan" onclick="startScanner()">📷 Buksan ang Camera</button>
+        <button class="btn btn-outline" id="btn-stop-scan" onclick="stopScanner()" style="display:none;">Ihinto</button>
+      </div>
+
+      <div class="scanner-box" id="scanner-box">
+        <video id="scanner-video" playsinline muted></video>
+        <div class="scan-frame"></div>
+        <div class="scan-line"></div>
+        <div class="scanner-status" id="scanner-status">Naghahanap ng QR code…</div>
+      </div>
+      <canvas id="scan-canvas" style="display:none;"></canvas>
+
+      <div id="camera-error"></div>
+
+      <div class="matched-card" id="matched-card">
+        <b id="matched-name"></b>
+        <span id="matched-meta"></span>
+      </div>
+
+      <div id="scan-form" style="display:none;">
+        <label>Student ID</label>
+        <input type="text" id="scan-id" placeholder="hal. 2023-00145">
+
+        <label>Buong Pangalan</label>
+        <input type="text" id="scan-name" placeholder="hal. Juan Dela Cruz">
+
+        <label>Department/Section</label>
+        <select id="scan-section"></select>
+
+        <button class="btn btn-gold" onclick="doScan()">✓ I-record ang Time In/Out</button>
+      </div>
+
+      <details class="fallback">
+        <summary>Walang camera access? Piliin dito nang manual</summary>
+        <label>Piliin ang Event</label>
+        <select id="scan-event-manual" onchange="selectEventManual()"></select>
+      </details>
+
+      <div id="scan-feedback"></div>
+    </div>
+
+    <div class="note">💡 Kapag first scan mo sa event: <b>Time In</b>. Kapag second scan mo: <b>Time Out</b>. Kung hindi tugma ang section mo sa allowed sections ng event, tatanggihan ka ng system.</div>
+  </div>
+
+</div>
+
+<div class="print-area" id="print-area"></div>
+
+<script>
+let events = [];
+let attendance = []; // {studentId, name, section, eventId, timeIn, timeOut}
+let eventCounter = 1;
+let matchedEventId = null;
+
+let scanStream = null;
+let scanRAF = null;
+
+function fmtTime(d){
+  return d.toLocaleTimeString('en-PH', {hour:'2-digit', minute:'2-digit'});
+}
+function fmtDate(dstr){
+  if(!dstr) return '—';
+  const d = new Date(dstr+'T00:00:00');
+  return d.toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'});
+}
+
+/* ---------- ADMIN: events ---------- */
+
+function createEvent(){
+  const name = document.getElementById('ev-name').value.trim();
+  const date = document.getElementById('ev-date').value;
+  const secRaw = document.getElementById('ev-sections').value.trim();
+  if(!name || !date || !secRaw){
+    alert('Punan muna lahat ng fields.');
+    return;
+  }
+  const sections = secRaw.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean);
+  events.push({
+    id: 'EVT-' + String(eventCounter++).padStart(3,'0'),
+    name, date, sections,
+    status: 'pending',
+    token: null
+  });
+  document.getElementById('ev-name').value='';
+  document.getElementById('ev-date').value='';
+  document.getElementById('ev-sections').value='';
+  renderEvents();
+  renderScanOptions();
+}
+
+function approveEvent(id){
+  const ev = events.find(e=>e.id===id);
+  ev.status = 'approved';
+  ev.token = 'QR-' + id + '-' + Math.random().toString(36).slice(2,8).toUpperCase();
+  renderEvents();
+  renderScanOptions();
+  renderAttendancePanel();
+}
+
+function renderEvents(){
+  const list = document.getElementById('event-list');
+  if(events.length===0){
+    list.innerHTML = '<div class="empty">Wala pang event. Gumawa ng una mo sa itaas.</div>';
+    return;
+  }
+  list.innerHTML = events.map(ev => `
+    <div class="event-item">
+      <div class="row">
+        <div>
+          <h3>${ev.name}</h3>
+          <div class="meta">${fmtDate(ev.date)} · ${ev.id}</div>
+          <div class="sections-tags">
+            ${ev.sections.map(s=>`<span class="sec-tag">${s}</span>`).join('')}
+          </div>
+        </div>
+        <span class="badge ${ev.status}">${ev.status==='pending' ? 'Naghihintay' : 'Approved'}</span>
+      </div>
+      ${ev.status==='pending'
+        ? `<button class="btn btn-primary" onclick="approveEvent('${ev.id}')">✓ I-approve at Bumuo ng QR</button>`
+        : `<div class="qr-wrap">
+             <div class="qrcode-box" id="qrbox-${ev.id}"></div>
+             <div class="qr-token">${ev.token}</div>
+             <button class="btn btn-outline" style="width:auto;padding:8px 16px;" onclick="printQR('${ev.id}')">🖨️ I-print ang QR</button>
+           </div>`
+      }
+    </div>
+  `).join('');
+
+  events.filter(e=>e.status==='approved').forEach(ev=>{
+    const box = document.getElementById('qrbox-'+ev.id);
+    if(box && box.innerHTML===''){
+      new QRCode(box, {
+        text: JSON.stringify({eventId: ev.id, token: ev.token}),
+        width: 140, height: 140,
+        colorDark:"#152238", colorLight:"#ffffff"
+      });
+    }
+  });
+}
+
+function printQR(eventId){
+  const ev = events.find(e=>e.id===eventId);
+  const box = document.getElementById('qrbox-'+eventId);
+  const printArea = document.getElementById('print-area');
+  printArea.innerHTML = `
+    <h1>${ev.name}</h1>
+    <div class="pmeta">${fmtDate(ev.date)} · ${ev.id}</div>
+    <div>${box.innerHTML}</div>
+    <div class="psections"><b>Allowed sections:</b> ${ev.sections.join(', ')}</div>
+    <div class="ptoken">${ev.token}</div>
+    <div class="pinstruction">I-scan ang QR code na ito gamit ang camera sa EventTrack Student Scan tab para awtomatikong ma-record ang Time In / Time Out.</div>
+  `;
+  window.print();
+}
+window.onafterprint = function(){
+  document.getElementById('print-area').innerHTML = '';
+};
+
+/* ---------- SCAN: fallback dropdown ---------- */
+
+function renderScanOptions(){
+  const approved = events.filter(e=>e.status==='approved');
+  const manualSel = document.getElementById('scan-event-manual');
+  manualSel.innerHTML = approved.length
+    ? '<option value="">— pumili —</option>' + approved.map(e=>`<option value="${e.id}">${e.name} (${fmtDate(e.date)})</option>`).join('')
+    : '<option value="">Wala pang approved event</option>';
+}
+
+function selectEventManual(){
+  const evId = document.getElementById('scan-event-manual').value;
+  if(!evId) return;
+  matchEvent(evId);
+}
+
+/* ---------- SCAN: camera + jsQR ---------- */
+
+async function startScanner(){
+  const box = document.getElementById('scanner-box');
+  const video = document.getElementById('scanner-video');
+  const errBox = document.getElementById('camera-error');
+  errBox.innerHTML = '';
+
+  try{
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    video.srcObject = scanStream;
+    await video.play();
+    box.classList.add('active');
+    document.getElementById('btn-start-scan').style.display='none';
+    document.getElementById('btn-stop-scan').style.display='inline-flex';
+    document.getElementById('scanner-status').textContent = 'Naghahanap ng QR code…';
+    tickScan();
+  }catch(err){
+    errBox.innerHTML = `<div class="scan-result err"><span class="icon">⚠️</span><span>Hindi ma-access ang camera (${err.name || 'permission denied'}). Gamitin na lang ang manual selection sa baba.</span></div>`;
+  }
+}
+
+function stopScanner(){
+  if(scanRAF) cancelAnimationFrame(scanRAF);
+  if(scanStream){
+    scanStream.getTracks().forEach(t=>t.stop());
+    scanStream = null;
+  }
+  document.getElementById('scanner-box').classList.remove('active');
+  document.getElementById('btn-start-scan').style.display='inline-flex';
+  document.getElementById('btn-stop-scan').style.display='none';
+}
+
+function tickScan(){
+  const video = document.getElementById('scanner-video');
+  const canvas = document.getElementById('scan-canvas');
+
+  if(video.readyState === video.HAVE_ENOUGH_DATA){
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+    if(code){
+      handleScannedText(code.data);
+      return; // stop the loop; handleScannedText decides what's next
+    }
+  }
+  scanRAF = requestAnimationFrame(tickScan);
+}
+
+function handleScannedText(text){
+  let payload;
+  try{
+    payload = JSON.parse(text);
+  }catch(e){
+    document.getElementById('scanner-status').textContent = 'Hindi kilalang QR — subukan ulit.';
+    scanRAF = requestAnimationFrame(tickScan);
+    return;
+  }
+  const ev = events.find(e => e.id === payload.eventId && e.token === payload.token && e.status === 'approved');
+  if(!ev){
+    document.getElementById('scanner-status').textContent = 'Hindi valid o expired na QR — subukan ulit.';
+    scanRAF = requestAnimationFrame(tickScan);
+    return;
+  }
+  stopScanner();
+  matchEvent(ev.id);
+}
+
+function matchEvent(eventId){
+  matchedEventId = eventId;
+  const ev = events.find(e=>e.id===eventId);
+  const card = document.getElementById('matched-card');
+  card.classList.add('show');
+  document.getElementById('matched-name').textContent = '✅ Na-scan: ' + ev.name;
+  document.getElementById('matched-meta').textContent = fmtDate(ev.date) + ' · Allowed: ' + ev.sections.join(', ');
+
+  const secSel = document.getElementById('scan-section');
+  secSel.innerHTML = ev.sections.map(s=>`<option value="${s}">${s}</option>`).join('')
+    + '<option value="__other">Ibang section (para i-test ang rejection)</option>';
+
+  document.getElementById('scan-form').style.display = 'block';
+  document.getElementById('scan-feedback').innerHTML = '';
+}
+
+/* ---------- SCAN: submit attendance ---------- */
+
+function doScan(){
+  const sid = document.getElementById('scan-id').value.trim();
+  const name = document.getElementById('scan-name').value.trim();
+  let section = document.getElementById('scan-section').value;
+  const feedback = document.getElementById('scan-feedback');
+
+  const ev = events.find(e=>e.id===matchedEventId);
+  if(!ev){
+    feedback.innerHTML = resultBox('err','I-scan muna ang QR ng event, o pumili sa manual selection.');
+    return;
+  }
+  if(!sid || !name){
+    feedback.innerHTML = resultBox('err','Kumpletuhin ang Student ID at Pangalan.');
+    return;
+  }
+  if(section === '__other' || !ev.sections.includes(section)){
+    feedback.innerHTML = resultBox('err', `Hindi ka pwedeng dumalo dito. Ang "${ev.name}" ay para lamang sa: ${ev.sections.join(', ')}.`);
+    return;
+  }
+
+  let rec = attendance.find(a=>a.studentId===sid && a.eventId===ev.id);
+  const now = new Date();
+
+  if(!rec){
+    attendance.push({studentId:sid, name, section, eventId:ev.id, timeIn:now, timeOut:null});
+    feedback.innerHTML = resultBox('ok', `Naka-Time In si ${name} (${section}) ngayong ${fmtTime(now)}.`);
+  } else if(rec.timeIn && !rec.timeOut){
+    rec.timeOut = now;
+    feedback.innerHTML = resultBox('ok', `Naka-Time Out si ${name} ngayong ${fmtTime(now)}. Kumpleto na ang attendance.`);
+  } else {
+    feedback.innerHTML = resultBox('err', `Kumpleto na ang attendance ni ${name} sa event na ito (Time In ${fmtTime(rec.timeIn)}, Time Out ${fmtTime(rec.timeOut)}).`);
+  }
+
+  renderAttendancePanel();
+}
+
+function resultBox(type, msg){
+  const icon = type==='ok' ? '✅' : '⚠️';
+  return `<div class="scan-result ${type}"><span class="icon">${icon}</span><span>${msg}</span></div>`;
+}
+
+/* ---------- ADMIN: attendance table ---------- */
+
+function renderAttendancePanel(){
+  const card = document.getElementById('attendance-card');
+  const approved = events.filter(e=>e.status==='approved');
+  if(approved.length===0){ card.style.display='none'; return; }
+  card.style.display='block';
+
+  const filterEvent = document.getElementById('filter-event');
+  const prevEv = filterEvent.value;
+  filterEvent.innerHTML = '<option value="all">Lahat ng Events</option>' +
+    approved.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  filterEvent.value = approved.find(e=>e.id===prevEv) ? prevEv : 'all';
+  filterEvent.onchange = renderAttendanceTable;
+
+  document.getElementById('filter-section').onchange = renderAttendanceTable;
+
+  renderAttendanceTable();
+}
+
+function renderAttendanceTable(){
+  const evFilter = document.getElementById('filter-event').value;
+  let pool = attendance.filter(a => evFilter==='all' || a.eventId===evFilter);
+
+  const allSections = [...new Set(pool.map(a=>a.section))];
+  const secFilter = document.getElementById('filter-section');
+  const prevSec = secFilter.value;
+  secFilter.innerHTML = '<option value="all">Lahat ng Section</option>' +
+    allSections.map(s=>`<option value="${s}">${s}</option>`).join('');
+  secFilter.value = allSections.includes(prevSec) ? prevSec : 'all';
+
+  if(secFilter.value !== 'all'){
+    pool = pool.filter(a=>a.section===secFilter.value);
+  }
+
+  const tbody = document.getElementById('att-tbody');
+  const empty = document.getElementById('att-empty');
+  const table = document.getElementById('att-table');
+
+  if(pool.length===0){
+    table.style.display='none';
+    empty.style.display='block';
+  } else {
+    table.style.display='table';
+    empty.style.display='none';
+    tbody.innerHTML = pool.map(a => `
+      <tr>
+        <td><b>${a.name}</b><br><span style="color:var(--sub);font-size:11px;">${a.studentId}</span></td>
+        <td>${a.section}</td>
+        <td>${fmtTime(a.timeIn)}</td>
+        <td>${a.timeOut ? fmtTime(a.timeOut) : '—'}</td>
+        <td>${a.timeOut
+          ? '<span class="status-pill status-complete">Kumpleto</span>'
+          : '<span class="status-pill status-in">Naka Time-In</span>'}</td>
+      </tr>
+    `).join('');
+  }
+
+  const total = pool.length;
+  const complete = pool.filter(a=>a.timeOut).length;
+  document.getElementById('att-stats').innerHTML = `
+    <div class="stat"><div class="num">${total}</div><div class="lbl">Naka-record</div></div>
+    <div class="stat"><div class="num">${complete}</div><div class="lbl">Kumpleto (in &amp; out)</div></div>
+  `;
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  document.getElementById('tab-admin').style.display = tab==='admin' ? 'block' : 'none';
+  document.getElementById('tab-scan').style.display = tab==='scan' ? 'block' : 'none';
+  if(tab !== 'scan') stopScanner();
+}
+
+// seed one sample event so it's not empty on load
+events.push({id:'EVT-001', name:'General Assembly', date: new Date().toISOString().slice(0,10), sections:['BSIT-3A','BSIT-3B','BSCS-2A'], status:'pending', token:null});
+eventCounter = 2;
+renderEvents();
+renderScanOptions();
+</script>
+
+</body>
+</html>
